@@ -1,67 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Integer Battle Game — Clean Division Fix</title>
-<style>
-/* ===== Base Layout ===== */
-:root { --card: rgba(255,255,255,0.1); --shadow: 0 8px 20px rgba(0,0,0,0.35); }
-html, body { height: 100%; }
-body {
-margin: 0; display: flex; align-items: center; justify-content: center;
-background: linear-gradient(135deg, #6a11cb, #2575fc); color: #fff;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-.game-container {
-width: 410px; max-width: 94vw; padding: 28px; border-radius: 22px;
-background: var(--card); backdrop-filter: blur(10px); box-shadow: var(--shadow);
-text-align: center; transition: transform .25s ease;
-}
-.game-container:hover { transform: translateY(-2px); }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integer Battle Game — Clean Division Fix</title>
+  <style>
+    /* ===== Base Layout ===== */
+    :root { --card: rgba(255,255,255,0.1); --shadow: 0 8px 20px rgba(0,0,0,0.35); }
+    html, body { height: 100%; }
+    body {
+      margin: 0; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #6a11cb, #2575fc); color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .game-container {
+      width: 410px; max-width: 94vw; padding: 28px; border-radius: 22px;
+      background: var(--card); backdrop-filter: blur(10px); box-shadow: var(--shadow);
+      text-align: center; transition: transform .25s ease;
+    }
+    .game-container:hover { transform: translateY(-2px); }
 
+    h1 { margin: 0 0 8px; font-size: 28px; text-shadow: 1px 1px 5px rgba(0,0,0,.5); }
+    .subtitle { font-size: 12px; opacity: .9; margin-bottom: 12px; }
 
-h1 { margin: 0 0 8px; font-size: 28px; text-shadow: 1px 1px 5px rgba(0,0,0,.5); }
-.subtitle { font-size: 12px; opacity: .9; margin-bottom: 12px; }
+    #question {
+      background: rgba(255,255,255,.2); border-radius: 16px; padding: 22px; margin: 16px 0 18px;
+      font-size: 30px; font-weight: 800; letter-spacing: .3px; box-shadow: 0 4px 10px rgba(0,0,0,.3);
+    }
+    .popIn { animation: popIn .35s ease; }
+    @keyframes popIn { from { transform: scale(.88); opacity:0; } to { transform: scale(1); opacity:1; } }
 
+    .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    input[type="text"] {
+      width: 160px; padding: 12px 14px; border-radius: 12px; border: none; outline: none;
+      font-size: 18px; text-align: center;
+    }
+    select, button {
+      padding: 10px 14px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px;
+      box-shadow: 0 4px 10px rgba(0,0,0,.28);
+    }
+    button { cursor: pointer; transition: transform .2s ease, box-shadow .2s ease; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,.45); }
+    .btn-submit { background: #ff6b6b; color: #fff; }
+    .btn-next { background: #1dd1a1; color: #0c2a1f; }
 
-#question {
-background: rgba(255,255,255,.2); border-radius: 16px; padding: 22px; margin: 16px 0 18px;
-font-size: 30px; font-weight: 800; letter-spacing: .3px; box-shadow: 0 4px 10px rgba(0,0,0,.3);
-}
-.popIn { animation: popIn .35s ease; }
-@keyframes popIn { from { transform: scale(.88); opacity:0; } to { transform: scale(1); opacity:1; } }
+    .score { margin-top: 10px; font-size: 18px; text-shadow: 1px 1px 3px rgba(0,0,0,.45); }
+    #feedback { min-height: 40px; font-size: 20px; font-weight: 800; margin-top: 10px; }
+    .correct { color: #00ffb0; animation: pop .6s ease; }
+    .wrong { color: #ff4444; animation: shake .5s ease; }
+    @keyframes pop { from { transform: scale(.6); opacity:0; } to { transform: scale(1); opacity:1; } }
+    @keyframes shake { 0%{transform:translateX(0)} 25%{transform:translateX(-5px)} 50%{transform:translateX(5px)} 75%{transform:translateX(-5px)} 100%{transform:translateX(0)} }
 
-
-.row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-input[type="text"] {
-width: 160px; padding: 12px 14px; border-radius: 12px; border: none; outline: none;
-font-size: 18px; text-align: center;
-}
-select, button {
-padding: 10px 14px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px;
-box-shadow: 0 4px 10px rgba(0,0,0,.28);
-}
-button { cursor: pointer; transition: transform .2s ease, box-shadow .2s ease; }
-button:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,.45); }
-.btn-submit { background: #ff6b6b; color: #fff; }
-.btn-next { background: #1dd1a1; color: #0c2a1f; }
-
-
-.score { margin-top: 10px; font-size: 18px; text-shadow: 1px 1px 3px rgba(0,0,0,.45); }
-#feedback { min-height: 40px; font-size: 20px; font-weight: 800; margin-top: 10px; }
-.correct { color: #00ffb0; animation: pop .6s ease; }
-.wrong { color: #ff4444; animation: shake .5s ease; }
-@keyframes pop { from { transform: scale(.6); opacity:0; } to { transform: scale(1); opacity:1; } }
-@keyframes shake { 0%{transform:translateX(0)} 25%{transform:translateX(-5px)} 50%{transform:translateX(5px)} 75%{transform:translateX(-5px)} 100%{transform:translateX(0)} }
-
-
-.controls { font-size: 12px; opacity: .95; margin-top: 6px; }
-.controls label { display: inline-flex; align-items: center; gap: 6px; }
-.hint { font-size: 12px; opacity: .85; margin-top: 6px; }
-</style>
+    .controls { font-size: 12px; opacity: .95; margin-top: 6px; }
+    .controls label { display: inline-flex; align-items: center; gap: 6px; }
+    .hint { font-size: 12px; opacity: .85; margin-top: 6px; }
+  </style>
 </head>
 <body>
-<div class="game-container">
+  <div class="game-container">
+    <h1>🎮 Integer Battle</h1>
+    <div class="subtitle">Now supports <strong>fractions</strong> (e.g. <em>-2/3</em>) or decimals. Division mode is configurable.</div>
 
+    <div id="question">Press Start to Begin!</div>
+
+    <div class="row">
+      <input type="text" id="answer" placeholder="Type answer… e.g. -2/3 or -0.67" autocomplete="off" />
+    </div>
+    <div class="row">
+      <button class="btn-submit" id="submitBtn">Submit</button>
+      <button class="btn-next" id="nextBtn">Start / Next</button>
+    </div>
+
+    <div class="score">Score: <span id="score">0</span></div>
+    <div id="feedback"></div>
+
+    <div class="row controls" style="margin-top:8px">
+      <label>Division mode:
+        <select id="divMode">
+          <option value="decimal" selected>Decimal (round to 2 d.p.)</option>
+          <option value="integer">Integer quotient only</option>
+        </select>
+      </label>
+      <label style="gap:4px">
+        <input type="checkbox" id="showAnswer" /> Show correct answer (teacher)
+      </label>
+    </div>
+    <div class="hint" id="hint">Hint: Press <b>Enter</b> to submit. For decimal mode, answers are checked to 2 d.p.</div>
+  </div>
+
+  <script>
+    // ===== State =====
+    let score = 0;
+    let currentAnswer = null; // numeric
+    let currentOp = null;     // '+', '-', '×', '÷'
+    let a = 0, b = 0;         // current operands
+
+    const messages = [
+      "🌟 Awesome! Keep it up!",
+      "🔥 Brilliant work!",
+      "🎉 You nailed it!",
+      "💪 Super strong move!",
+      "🚀 Great job, math wizard!",
+      "✨ Sharp thinking!",
+      "🏆 Champion move!"
+    ];
+
+    const qEl = document.getElementById('question');
+    const ansEl = document.getElementById('answer');
+    const feedback = document.getElementById('feedback');
+    const scoreEl = document.getElementById('score');
+    const divModeSel = document.getElementById('divMode');
+    const showAnsChk = document.getElementById('showAnswer');
+    const hintEl = document.getElementById('hint');
+
+    function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function rndNonZero(min, max) { let n = 0; while (n === 0) n = rnd(min, max); return n; }
+
+    function roundTo(x, d = 2) { return Number(Math.round((x + Number.EPSILON) * 10**d) / 10**d); }
+
+    // Parse user input: supports integers, decimals, and simple fractions like -2/3
+    function parseInput(str) {
+      const s = (str || '').trim().replace(/\u2212/g, '-'); // support unicode minus
+      if (s === '') return NaN;
+      const frac = s.match(/^\s*([+-]?\d+)\s*\/\s*([+-]?\d+)\s*$/);
+      if (frac) {
+        const num = Number(frac[1]);
+        const den = Number(frac[2]);
+        if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) return NaN;
+        return num / den;
+      }
+      const val = Number(s);
+      return Number.isFinite(val) ? val : NaN;
+    }
+
+    function newQuestion() {
+      // Reset feedback
+      feedback.textContent = '';
+      feedback.className = '';
+      ansEl.value = '';
+      ansEl.focus();
+
+      // Choose operator
+      const ops = ['+', '-', '×', '÷'];
+      currentOp = ops[rnd(0, ops.length - 1)];
+
+      // Generate operands and compute exact numeric answer
+      if (currentOp === '÷') {
+        const mode = divModeSel.value; // 'decimal' or 'integer'
+        if (mode === 'integer') {
+          // Ensure integer quotient: pick divisor (non-zero) and integer quotient, then build dividend
+          const divisor = rndNonZero(-12, 12);
+          const quotient = rndNonZero(-12, 12);
+          a = divisor * quotient; // dividend
+          b = divisor;            // divisor
+          currentAnswer = quotient;
+          hintEl.textContent = 'Hint: Division mode is Integer — answers are whole numbers.';
+        } else {
+          // Decimal mode: random non-zero divisor; allow any decimal result
+          a = rnd(-12, 12);
+          b = rndNonZero(-12, 12);
+          currentAnswer = a / b; // exact JS double
+          hintEl.textContent = 'Hint: Division mode is Decimal — answers are checked to 2 d.p. You may also enter a fraction.';
+        }
+      } else {
+        // Non-division operators
+        a = rnd(-12, 12);
+        b = rnd(-12, 12);
+        if (currentOp === '+') currentAnswer = a + b;
+        if (currentOp === '-') currentAnswer = a - b;
+        if (currentOp === '×') currentAnswer = a * b;
+      }
+
+      // Display question using pretty operator symbols
+      qEl.textContent = `Calculate: ${a} ${currentOp} ${b}`;
+      qEl.classList.remove('popIn'); void qEl.offsetWidth; qEl.classList.add('popIn');
+
+      // Optionally show correct answer for teacher
+      if (showAnsChk.checked) {
+        const text = (currentOp === '÷' && divModeSel.value === 'decimal')
+          ? ` (answer ≈ ${roundTo(currentAnswer, 2).toFixed(2)})`
+          : ` (answer = ${currentAnswer})`;
+        feedback.textContent = text;
+        feedback.className = 'hint';
+      }
+    }
+
+    function isCorrect(userVal) {
+      if (!Number.isFinite(userVal)) return false;
+      if (currentOp === '÷' && divModeSel.value === 'decimal') {
+        // Compare to 2 decimal places: accept rounded equality
+        const u = roundTo(userVal, 2);
+        const t = roundTo(currentAnswer, 2);
+        return u === t;
+      }
+      // Exact numeric equality for integer mode and other operators
+      return userVal === currentAnswer;
+    }
+
+    function celebrate(msg) {
+      const texts = messages;
+      const line = msg || texts[rnd(0, texts.length - 1)];
+      feedback.textContent = line;
+      feedback.className = 'correct';
+    }
+
+    function showMistake() {
+      const mode = divModeSel.value;
+      const correctText = (currentOp === '÷' && mode === 'decimal')
+        ? `≈ ${roundTo(currentAnswer, 2).toFixed(2)}`
+        : `${currentAnswer}`;
+      feedback.textContent = `❌ Oops! The correct answer was ${correctText}`;
+      feedback.className = 'wrong';
+    }
+
+    function checkAnswer() {
+      const userVal = parseInput(ansEl.value);
+      if (!Number.isFinite(userVal)) {
+        feedback.textContent = '💡 Please enter a number or a simple fraction like -2/3';
+        feedback.className = 'wrong';
+        return;
+      }
+
+      if (isCorrect(userVal)) {
+        score++;
+        scoreEl.textContent = score;
+        celebrate();
+      } else {
+        showMistake();
+      }
+
+      setTimeout(newQuestion, 1200);
+    }
+
+    // Wire up UI
+    document.getElementById('submitBtn').addEventListener('click', checkAnswer);
+    document.getElementById('nextBtn').addEventListener('click', newQuestion);
+    ansEl.addEventListener('keydown', e => { if (e.key === 'Enter') checkAnswer(); });
+    divModeSel.addEventListener('change', () => newQuestion());
+    showAnsChk.addEventListener('change', () => newQuestion());
+
+    // Start
+    newQuestion();
+  </script>
+</body>
+</html>
 
