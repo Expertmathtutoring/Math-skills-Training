@@ -1,210 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Integer Battle Game</title>
-<style>
-  /* Global styles */
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, #6a11cb, #2575fc);
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+feedback.textContent = '';
+feedback.className = '';
+ansEl.value = '';
+ansEl.focus();
 
-  .game-container {
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 40px;
-    width: 350px;
-    text-align: center;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-    transition: transform 0.3s ease;
-  }
 
-  .game-container:hover {
-    transform: scale(1.02);
-  }
+// Pick an operation for display (use pretty symbols × and ÷)
+const ops = ['+', '-', '×', '÷'];
+currentOp = ops[Math.floor(Math.random() * ops.length)];
 
-  h1 {
-    font-size: 28px;
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
-  }
 
-#question {
-  background: rgba(255,255,255,0.2);
-  padding: 20px;
-  margin: 20px 0;
-  border-radius: 15px;
-  font-size: 28px;   /* Increased from 22px */
-  font-weight: bold; /* Make it bold */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+let num1 = getRandomInt(-10, 10);
+let num2 = getRandomInt(-10, 10);
+
+
+// Ensure division yields an integer result
+if (currentOp === '÷') {
+num2 = getRandomNonZeroInt(-10, 10); // divisor
+const quotient = getRandomInt(-10, 10);
+num1 = num2 * quotient; // construct a clean division
+currentAnswer = quotient;
+} else if (currentOp === '+') {
+currentAnswer = num1 + num2;
+} else if (currentOp === '-') {
+currentAnswer = num1 - num2;
+} else if (currentOp === '×') {
+currentAnswer = num1 * num2;
 }
 
-  input {
-    padding: 10px;
-    font-size: 18px;
-    width: 80px;
-    border-radius: 10px;
-    border: none;
-    outline: none;
-    text-align: center;
-    margin-bottom: 15px;
-  }
 
-  button {
-    padding: 12px 25px;
-    font-size: 16px;
-    margin: 10px 5px;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: bold;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  }
+// Render question (pretty operator symbols)
+qEl.textContent = `Calculate: ${num1} ${currentOp} ${num2}`;
 
-  button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.5);
-  }
 
-  .btn-submit {
-    background: #ff6b6b;
-    color: #fff;
-  }
-
-  .btn-next {
-    background: #1dd1a1;
-    color: #fff;
-  }
-
-  .score {
-    font-size: 20px;
-    margin-top: 15px;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-  }
-
-  /* Feedback message */
-  #feedback {
-    margin-top: 20px;
-    font-size: 20px;
-    font-weight: bold;
-    min-height: 40px;
-    transition: opacity 0.5s ease;
-  }
-
-  .correct {
-    color: #00ff99;
-    animation: pop 0.6s ease;
-  }
-
-  .wrong {
-    color: #ff4444;
-    animation: shake 0.5s ease;
-  }
-
-  @keyframes pop {
-    0% {transform: scale(0.5); opacity: 0;}
-    100% {transform: scale(1); opacity: 1;}
-  }
-
-  @keyframes shake {
-    0% {transform: translateX(0);}
-    25% {transform: translateX(-5px);}
-    50% {transform: translateX(5px);}
-    75% {transform: translateX(-5px);}
-    100% {transform: translateX(0);}
-  }
-
-  @media(max-width: 400px){
-    .game-container {
-      width: 90%;
-      padding: 30px;
-    }
-    input {
-      width: 60px;
-    }
-  }
-</style>
-</head>
-<body>
-
-<div class="game-container">
-  <h1>🎮 Integer Battle</h1>
-  <p id="question">Press Start to Begin!</p>
-  <input type="number" id="answer" placeholder="Answer">
-  <div>
-    <button class="btn-submit" onclick="checkAnswer()">Submit</button>
-    <button class="btn-next" onclick="newQuestion()">Start / Next</button>
-  </div>
-  <p class="score">Score: <span id="score">0</span></p>
-  <p id="feedback"></p>
-</div>
-
-<script>
-let score = 0;
-let currentAnswer = 0;
-
-const positiveMessages = [
-  "🌟 Awesome! Keep it up!",
-  "🔥 Brilliant work!",
-  "🎉 You nailed it!",
-  "💪 Super strong move!",
-  "🚀 Great job, math wizard!"
-];
-
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+// trigger pop-in animation
+qEl.classList.remove('popIn');
+void qEl.offsetWidth; // reflow to restart animation
+qEl.classList.add('popIn');
 }
 
-function newQuestion() {
-  let num1 = getRandomInt(-10, 10);
-  let num2 = getRandomInt(-10, 10);
-  const operations = ['+', '-', '*', '/'];
-  let op = operations[Math.floor(Math.random() * operations.length)];
-
-  if(op === '/' && num2 === 0) num2 = getRandomInt(1,10);
-
-  document.getElementById('question').textContent = `Calculate: ${num1} ${op} ${num2}`;
-
-  switch(op) {
-    case '+': currentAnswer = num1 + num2; break;
-    case '-': currentAnswer = num1 - num2; break;
-    case '*': currentAnswer = num1 * num2; break;
-    case '/': currentAnswer = Math.floor(num1 / num2); break;
-  }
-
-  document.getElementById('answer').value = '';
-  document.getElementById('feedback').textContent = '';
-}
 
 function checkAnswer() {
-  const userAnswer = parseInt(document.getElementById('answer').value);
-  const feedback = document.getElementById('feedback');
+const ansEl = document.getElementById('answer');
+const feedback = document.getElementById('feedback');
+const scoreEl = document.getElementById('score');
 
-  if(userAnswer === currentAnswer) {
-    score++;
-    document.getElementById('score').textContent = score;
-    const message = positiveMessages[Math.floor(Math.random() * positiveMessages.length)];
-    feedback.textContent = message;
-    feedback.className = "correct";
-  } else {
-    feedback.textContent = `❌ Oops! The correct answer was ${currentAnswer}`;
-    feedback.className = "wrong";
-  }
 
-  setTimeout(newQuestion, 1500);
+if (ansEl.value === '' || currentAnswer === null) {
+feedback.textContent = '💡 Enter your answer first!';
+feedback.className = 'wrong';
+return;
 }
+
+
+const userAnswer = Number(ansEl.value);
+
+
+if (userAnswer === currentAnswer) {
+score++;
+scoreEl.textContent = score;
+const msg = positiveMessages[Math.floor(Math.random() * positiveMessages.length)];
+feedback.textContent = msg;
+feedback.className = 'correct';
+} else {
+feedback.textContent = `❌ Oops! The correct answer was ${currentAnswer}`;
+feedback.className = 'wrong';
+}
+
+
+// Move to the next question after a short pause
+setTimeout(newQuestion, 1200);
+}
+
+
+// Wire up buttons and Enter key
+document.getElementById('submitBtn').addEventListener('click', checkAnswer);
+document.getElementById('nextBtn').addEventListener('click', newQuestion);
+document.getElementById('answer').addEventListener('keydown', (e) => {
+if (e.key === 'Enter') checkAnswer();
+});
 </script>
+
 
 </body>
 </html>
