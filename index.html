@@ -1,87 +1,78 @@
 <!DOCTYPE html>
-feedback.textContent = '';
-feedback.className = '';
-ansEl.value = '';
-ansEl.focus();
 
 
-// Pick an operation for display (use pretty symbols × and ÷)
-const ops = ['+', '-', '×', '÷'];
-currentOp = ops[Math.floor(Math.random() * ops.length)];
+// Generate random integers and operator
+let a = Math.floor(Math.random() * 21) - 10; // -10 to 10
+let b = Math.floor(Math.random() * 21) - 10; // -10 to 10
+let operators = ["+", "-", "*", "/"];
+let op = operators[Math.floor(Math.random() * operators.length)];
 
 
-let num1 = getRandomInt(-10, 10);
-let num2 = getRandomInt(-10, 10);
-
-
-// Ensure division yields an integer result
-if (currentOp === '÷') {
-num2 = getRandomNonZeroInt(-10, 10); // divisor
-const quotient = getRandomInt(-10, 10);
-num1 = num2 * quotient; // construct a clean division
-currentAnswer = quotient;
-} else if (currentOp === '+') {
-currentAnswer = num1 + num2;
-} else if (currentOp === '-') {
-currentAnswer = num1 - num2;
-} else if (currentOp === '×') {
-currentAnswer = num1 * num2;
+// Avoid division by 0
+if (op === "/") {
+while (b === 0) {
+b = Math.floor(Math.random() * 21) - 10;
+}
 }
 
 
-// Render question (pretty operator symbols)
-qEl.textContent = `Calculate: ${num1} ${currentOp} ${num2}`;
+// Calculate answer
+switch(op) {
+case "+": currentAnswer = a + b; break;
+case "-": currentAnswer = a - b; break;
+case "*": currentAnswer = a * b; break;
+case "/": currentAnswer = parseFloat((a / b).toFixed(2)); break; // 2 decimal places
+}
 
 
-// trigger pop-in animation
-qEl.classList.remove('popIn');
-void qEl.offsetWidth; // reflow to restart animation
-qEl.classList.add('popIn');
+// Display question
+document.getElementById("question").textContent = `${a} ${op} ${b}`;
+
+
+// Clear input
+document.getElementById("answer").value = "";
 }
 
 
 function checkAnswer() {
-const ansEl = document.getElementById('answer');
-const feedback = document.getElementById('feedback');
-const scoreEl = document.getElementById('score');
+const userInput = document.getElementById("answer").value.trim();
+if (userInput === "") return; // Ignore empty input
 
 
-if (ansEl.value === '' || currentAnswer === null) {
-feedback.textContent = '💡 Enter your answer first!';
-feedback.className = 'wrong';
-return;
-}
+let userAnswer = Number(userInput);
 
 
-const userAnswer = Number(ansEl.value);
-
-
-if (userAnswer === currentAnswer) {
-score++;
-scoreEl.textContent = score;
-const msg = positiveMessages[Math.floor(Math.random() * positiveMessages.length)];
-feedback.textContent = msg;
-feedback.className = 'correct';
+let correct = false;
+if (typeof currentAnswer === "number") {
+// Allow tolerance for division answers (within 0.01)
+if (Number.isInteger(currentAnswer)) {
+correct = (userAnswer === currentAnswer);
 } else {
-feedback.textContent = `❌ Oops! The correct answer was ${currentAnswer}`;
-feedback.className = 'wrong';
+correct = Math.abs(userAnswer - currentAnswer) < 0.01;
+}
 }
 
 
-// Move to the next question after a short pause
-setTimeout(newQuestion, 1200);
+if (correct) {
+document.getElementById("feedback").textContent = "✅ Correct!";
+document.getElementById("feedback").style.color = "green";
+score++;
+} else {
+document.getElementById("feedback").textContent = `❌ Wrong! Correct answer was ${currentAnswer}`;
+document.getElementById("feedback").style.color = "red";
+if (score > 0) score--;
 }
 
 
-// Wire up buttons and Enter key
-document.getElementById('submitBtn').addEventListener('click', checkAnswer);
-document.getElementById('nextBtn').addEventListener('click', newQuestion);
-document.getElementById('answer').addEventListener('keydown', (e) => {
-if (e.key === 'Enter') checkAnswer();
-});
+document.getElementById("score").textContent = `Score: ${score}`;
+setTimeout(generateQuestion, 1500);
+}
+
+
+// Start game
+generateQuestion();
 </script>
-
-
 </body>
 </html>
+
 
