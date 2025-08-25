@@ -92,6 +92,38 @@
     text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
   }
 
+  /* Feedback message */
+  #feedback {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    min-height: 40px;
+    transition: opacity 0.5s ease;
+  }
+
+  .correct {
+    color: #00ff99;
+    animation: pop 0.6s ease;
+  }
+
+  .wrong {
+    color: #ff4444;
+    animation: shake 0.5s ease;
+  }
+
+  @keyframes pop {
+    0% {transform: scale(0.5); opacity: 0;}
+    100% {transform: scale(1); opacity: 1;}
+  }
+
+  @keyframes shake {
+    0% {transform: translateX(0);}
+    25% {transform: translateX(-5px);}
+    50% {transform: translateX(5px);}
+    75% {transform: translateX(-5px);}
+    100% {transform: translateX(0);}
+  }
+
   @media(max-width: 400px){
     .game-container {
       width: 90%;
@@ -114,11 +146,20 @@
     <button class="btn-next" onclick="newQuestion()">Start / Next</button>
   </div>
   <p class="score">Score: <span id="score">0</span></p>
+  <p id="feedback"></p>
 </div>
 
 <script>
 let score = 0;
 let currentAnswer = 0;
+
+const positiveMessages = [
+  "🌟 Awesome! Keep it up!",
+  "🔥 Brilliant work!",
+  "🎉 You nailed it!",
+  "💪 Super strong move!",
+  "🚀 Great job, math wizard!"
+];
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -142,18 +183,25 @@ function newQuestion() {
   }
 
   document.getElementById('answer').value = '';
+  document.getElementById('feedback').textContent = '';
 }
 
 function checkAnswer() {
   const userAnswer = parseInt(document.getElementById('answer').value);
+  const feedback = document.getElementById('feedback');
+
   if(userAnswer === currentAnswer) {
-    alert('✅ Correct! +1 point');
     score++;
+    document.getElementById('score').textContent = score;
+    const message = positiveMessages[Math.floor(Math.random() * positiveMessages.length)];
+    feedback.textContent = message;
+    feedback.className = "correct";
   } else {
-    alert(`❌ Wrong! Correct answer was ${currentAnswer}`);
+    feedback.textContent = `❌ Oops! The correct answer was ${currentAnswer}`;
+    feedback.className = "wrong";
   }
-  document.getElementById('score').textContent = score;
-  newQuestion();
+
+  setTimeout(newQuestion, 1500);
 }
 </script>
 
