@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Integer Battle Game with Fireworks</title>
+<title>Integer Battle Game with Fireworks & Applause</title>
 <style>
   /* ===== Base Layout ===== */
   :root { --card: rgba(255,255,255,0.1); --shadow: 0 8px 20px rgba(0,0,0,0.35); }
@@ -103,8 +103,10 @@
     <div class="hint" id="hint">Press <b>Enter</b> to submit. Decimal mode answers checked to 2 d.p.</div>
   </div>
 
+  <!-- Applause sound -->
+  <audio id="applauseSound" src="https://www.soundjay.com/human/applause-8.mp3" preload="auto"></audio>
+
 <script>
-  // ===== State =====
   let score = 0;
   let currentAnswer = null;
   let currentOp = null;
@@ -127,6 +129,7 @@
   const divModeSel = document.getElementById('divMode');
   const showAnsChk = document.getElementById('showAnswer');
   const hintEl = document.getElementById('hint');
+  const applauseSound = document.getElementById('applauseSound');
 
   function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
   function rndNonZero(min,max){let n=0; while(n===0)n=rnd(min,max); return n;}
@@ -194,7 +197,7 @@
     const rect=qEl.getBoundingClientRect();
     const centerX=rect.left+rect.width/2;
     const centerY=rect.top+rect.height/2;
-    const SPARKS=180, MIN_DIST=50, MAX_DIST=300;
+    const SPARKS=120, MIN_DIST=50, MAX_DIST=250;
     for(let i=0;i<SPARKS;i++){
       const spark=document.createElement('div'); spark.className='spark';
       const angle=Math.random()*2*Math.PI;
@@ -209,11 +212,12 @@
   }
 
   function celebrate(msg){
-    const texts=messages;
-    const line=msg||texts[rnd(0,texts.length-1)];
+    const line=msg||messages[rnd(0,messages.length-1)];
     feedback.textContent=line;
     feedback.className='correct';
-    launchFireworks();
+    applauseSound.currentTime=0;
+    applauseSound.play();   // 👏 Play clapping sound
+    launchFireworks();      // 🎆 Fireworks
   }
 
   function showMistake(){
@@ -233,17 +237,15 @@
     if(isCorrect(userVal)){
       score++; scoreEl.textContent=score; celebrate();
     } else { showMistake(); }
-    setTimeout(newQuestion,1200);
+    setTimeout(newQuestion,1500);
   }
 
-  // Wire up UI
   document.getElementById('submitBtn').addEventListener('click', checkAnswer);
   document.getElementById('nextBtn').addEventListener('click', newQuestion);
   ansEl.addEventListener('keydown', e=>{ if(e.key==='Enter') checkAnswer(); });
   divModeSel.addEventListener('change',()=>newQuestion());
   showAnsChk.addEventListener('change',()=>newQuestion());
 
-  // Start game
   newQuestion();
 </script>
 </body>
